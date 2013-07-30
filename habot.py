@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import habot_settings # bot settings
 import socket
 import time
 import sys
@@ -100,6 +99,7 @@ while True:
     except Exception, e:
         exc_type, exc_message, exc_tb = sys.exc_info()
         filename = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        # show the exception type, filename and line from where the exception was raised
         show_debug('Exception raised => type: %s, filename: %s, line: %s' %
                     (type(e).__name__, filename, exc_tb.tb_lineno))
 
