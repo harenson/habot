@@ -11,7 +11,7 @@ PORT = 6667 # port on in irc server
 CHANNEL = '#NanoBot' # channel you want to connect
 ADMIN = 'harenson' # Bot's administrator account
 NICKNAME = 'HaBot'
-PASSWORD = 'mybotpassword'
+PASSWORD = 'helloworld'
 REALNAME = 'Harry\'s Bot'
 DEBUG = 1 # to show or not messages to console
 read_buffer = '' # take the responses from the server
@@ -29,6 +29,15 @@ def show_debug(text):
     text = str(text)
     if DEBUG:
         print('%s -- %s' % (current_date, text))
+
+
+def show_help(autor_message):
+    help_text = ['%s: say <text> - Reply back with <text>' % NICKNAME,
+                 '%s: <hello|hola> - Reply back with "hello" or "hola", ' \
+                     'depending of the user input' % NICKNAME,
+                 '%s: help - Display all the available commands' % NICKNAME]
+    for message in help_text:
+        s.send('PRIVMSG %s :%s\r\n' % (autor_message, message))
 
 # auth
 show_debug('Sending nick')
@@ -57,14 +66,15 @@ while True:
                 s.send('JOIN %s\r\n' % CHANNEL) # connect to the channel
                 s.send('PRIVMSG %s :Hello everyone >=)\r\n' % CHANNEL) # say hi to channel
 
-            if 'PING' in line:
-                send_pong(line)
+            if 'PING' in line: # ping request
+                send_pong(line) # send ping response
 
-            # example message => :johndoe!uid3023@gateway/web/irccloud.com/x-wtbebjjfbcoqzjtm PRIVMSG #NanoBot :HaBot: say hello world
+
+            # example message => :johndoe!uid3023@gateway/web/irccloud.com/x-wtbebjjfbcoqzjtm PRIVMSG #ChannelName :HaBot: say hello world
             new_message = line.split(':', 3) # new message sent to the channel. Used to listen the commands
 
-            # len is to check that the message comes from an irc channel
-            if len(new_message) > 2 and new_message[2] == NICKNAME: # subject of the message
+            # find(PRIVMSG) is to check that the message comes from an irc channel
+            if line.find('PRIVMSG') != -1 and new_message[2] == NICKNAME: # subject of the message
                 autor_message = new_message[1][0:new_message[1].find('!')]
                 message = new_message[3].strip() # remove the left and right spaces of message text
 
@@ -76,6 +86,8 @@ while True:
                     command = message
                     parameters = ''
 
+                command = str(command).lower()
+
                 if command == 'logout':
                     if autor_message == ADMIN: # this command just can be executed by the Bot's administrator
                         s.send('QUIT\r\n') # close the connection
@@ -83,11 +95,14 @@ while True:
                         s.send('PRIVMSG %s :%s: You\'re not authorized to ' \
                                'execute this command.\r\n' %
                                 (CHANNEL, autor_message))
+                
+                if command == 'help': # send the help text with all the public commands available
+                    show_help(autor_message)
 
-                if command == 'say':
+                if command == 'say': # Reply back with the autor_message text
                     s.send('PRIVMSG %s :%s\r\n' % (CHANNEL, parameters))
 
-                if command in ['hello', 'hola']:
+                if command in ['hello', 'hola']: # Reply back with "hello" or "hola", depending of the user input
                     s.send('PRIVMSG %s :%s: %s\r\n' %
                             (CHANNEL, autor_message, command))
 
