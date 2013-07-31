@@ -91,6 +91,8 @@ while True:
                 if command == 'logout':
                     if autor_message == ADMIN: # this command just can be executed by the Bot's administrator
                         s.send('QUIT\r\n') # close the connection
+                        s.close()
+                        exit(0)
                     else:
                         s.send('PRIVMSG %s :%s: You\'re not authorized to ' \
                                'execute this command.\r\n' %
